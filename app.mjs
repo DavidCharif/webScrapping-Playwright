@@ -347,7 +347,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop", (req, res) => {
   (async () => {
-    const browser = await chromium.launch({headless:false, slowMo: 800 });
+    const browser = await firefox.launch({headless:false, slowMo: 800 });
     const page = await browser.newPage();
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
