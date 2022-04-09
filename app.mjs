@@ -126,7 +126,7 @@ app.get("/extraerLista", (req, res) => {
 
   console.log("Cargando productos");
 });
-app.get("/lista", (req, res) => {
+app.get("/lista", (req, res)=> {
   (async () => {
     const browser = await chromium.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
