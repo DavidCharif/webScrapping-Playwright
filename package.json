@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "firebase": "^9.6.10",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "playwright-firefox": "^1.20.2"
   },
   "devDependencies": {
     "playwright": "^1.20.0"
