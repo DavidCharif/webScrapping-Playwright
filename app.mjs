@@ -5,8 +5,8 @@ import https from "https";
 
 import fs from "fs";
 const app = express();
-import { chromium, firefox } from "playwright";
-
+// import { chromium, firefox } from "playwright";
+const { firefox } = require("playwright-firefox")
 import firestore from "./firebase/firebaseConfig.js";
 import { collection, doc, setDoc, addDoc, getDocs } from "@firebase/firestore";
 import {
