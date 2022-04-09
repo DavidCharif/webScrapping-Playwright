@@ -161,7 +161,7 @@ app.get("/lista", (req, res)=> {
 });
 app.get("/listaCiudades", (req, res) => {
   (async () => {
-    const browser = await chromium.launch({ slowMo: 350 })
+    const browser = await firefox.launch({ slowMo: 350 })
 
     const page = await browser.newPage();
     await page.goto(`https://merqueo.com`, {
