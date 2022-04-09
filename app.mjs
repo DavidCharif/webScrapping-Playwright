@@ -349,7 +349,7 @@ app.get("/getCornerShop", (req, res) => {
   (async () => {
     const browser = await firefox.launch({headless:false, slowMo: 800 });
     const page = await browser.newPage();
-    await page.goto(`https://web.cornershopapp.com/`, {
+    await page.goto(`https://web.cornershopapp.com/`,{
       waitUntil: "load",
       // Remove the timeout
       timeout: 0,
