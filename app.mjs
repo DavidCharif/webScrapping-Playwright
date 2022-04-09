@@ -6,15 +6,12 @@ import https from "https";
 import fs from "fs";
 const app = express();
 // import { chromium, firefox } from "playwright";
-const { firefox } = require("playwright-firefox")
+import  { firefox } from "playwright-firefox"
 import firestore from "./firebase/firebaseConfig.js";
 import { collection, doc, setDoc, addDoc, getDocs } from "@firebase/firestore";
 import {
   getStorage,
   ref,
-  uploadBytes,
-  getDownloadURL,
-  uploadBytesResumable,
 } from "firebase/storage";
 const { db } = firestore;
 const storage = getStorage();
