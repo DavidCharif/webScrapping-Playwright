@@ -263,9 +263,9 @@ app.get("/getCornerShop/:id", (req, res) => {
 
     console.log('Iniciando page')
     
-    const context =  await browser.newContext()
+    // const context =  await browser.newContext()
 
-    const page = await context.newPage({
+    const page = await browser.newPage({
       slowMo: 800,
 
     });
@@ -342,7 +342,9 @@ app.get("/getCornerShop/:id", (req, res) => {
 //       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
-      const citys = await page.locator('//*[@id="city-country"]');
+      const citys = await page.locator('//*[@id="city-country"]', {
+        timeout:0,
+      });
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
       console.log('seleccionando opcion')
