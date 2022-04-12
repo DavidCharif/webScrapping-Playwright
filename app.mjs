@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 300 });
+    const browser = await firefox.launch({ slowMo: 500 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
@@ -288,7 +288,10 @@ app.get("/getCornerShop/:id", (req, res) => {
       ".form-select"
     );
     await page.waitForSelector(
-      "#city-country"
+      "#city-country",
+      {
+        timeout:0,
+      }
     );
     await page.click('#city-country')
     await page.waitForSelector('[data-testid="city-select"]');
