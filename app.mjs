@@ -19,7 +19,7 @@ app.use(
 //
 app.get("/extraerLista", (req, res) => {
   (async () => {
-    const browser = await chromium.launch({ headless: false, slowMo: 250 });
+    const browser = await chromium.launch({ slowMo: 250 });
     const page = await browser.newPage();
     await page.goto(
       `https://merqueo.com/bogota/super-ahorro/frutas-y-verduras`,
@@ -257,10 +257,10 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({slowMo: 400 });
+    const browser = await firefox.launch({slowMo: 450 });
     const page = await browser.newPage();
     //req params
-    
+    console.log('Iniciando page')
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
       // Remove the timeout
