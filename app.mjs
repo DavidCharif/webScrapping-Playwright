@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({headless:false , slowMo: 300 });
+    const browser = await firefox.launch({ slowMo: 300 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
