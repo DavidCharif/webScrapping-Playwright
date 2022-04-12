@@ -342,7 +342,7 @@ app.get("/getCornerShop/:id", (req, res) => {
 //       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
-      const citys = await page.locator("select[data-testid='city-select']");
+      const citys = await page.locator('//*[@id="city-country"]');
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
       console.log('seleccionando opcion')
