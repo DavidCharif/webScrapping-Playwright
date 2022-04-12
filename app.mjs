@@ -261,17 +261,20 @@ app.get("/getCornerShop/:id", (req, res) => {
     const browser = await firefox.launch({slowMo: 450 });
 
     console.log('Iniciando page')
-    console.log("sin push 😎")
-    const page = await browser.newPage();
+    
+    const context =  await browser.newContext()
+
+    const page = await context.newPage();
     console.log('despues page')
     
     //req params
-    console.log('Iniciando page')
+   
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
       // Remove the timeout
       timeout: 0,
     });
+    console.log('Navegando a la pagina')
     await page.waitForSelector(
       "#modal-container > div.cs-dialog.welcome-dialog.modal > div > div > div > div.welcome-footer-container > div > button.continue-button.primary.full-width.cs-button.button"
     );
@@ -293,6 +296,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.waitForSelector(
       ".form-select"
     );
+    consolo.log('esperando el selectore de ciudad')
     await page.waitForSelector(
       "#city-country",
       {
