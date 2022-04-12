@@ -306,10 +306,12 @@ app.get("/getCornerShop/:id", (req, res) => {
     console.log('encontrado 😴')
     await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
     console.log('Haciendo click')
-    await page.waitForSelector('[data-testid="city-select"]');
+    await page.waitForSelector('//*[@id="city-country"]/option[1]');
+    console.log('Esperando selector de ciudad')
     const firstRows = await page.locator(
       '[data-testid="city-select"] > option'
     );
+    console.log('mirando las opciones')
     let cityPageName;
     let count = await firstRows.count();
     console.log("Ciudades", count);
