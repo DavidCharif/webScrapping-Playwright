@@ -1,20 +1,15 @@
-import express, { json } from "express";
+import express from "express";
 import cors from "cors";
-
-import https from "https";
-
-import fs from "fs";
-const app = express();
+import autoScroll from "./helpers/AutoScroll.mjs";
 // import { chromium, firefox } from "playwright";
-import  { firefox } from "playwright-firefox"
+import { firefox } from "playwright-firefox";
 import firestore from "./firebase/firebaseConfig.js";
-import { collection, doc, setDoc, addDoc, getDocs } from "@firebase/firestore";
-import {
-  getStorage,
-  ref,
-} from "firebase/storage";
+import { doc, setDoc } from "@firebase/firestore";
+import formatPrice from "./helpers/formatPrice.mjs";
+import formatCityName from "./helpers/formatCityName.mjs";
+import formatDate from "./helpers/formatDate.mjs";
+const app = express();
 const { db } = firestore;
-const storage = getStorage();
 app.use(
   cors({
     origin: "*",
@@ -23,12 +18,6 @@ app.use(
 //
 app.get("/extraerLista", (req, res) => {
   (async () => {
-    // iterate through the array
-
-    // get the current item
-
-    // get the current item's index
-
     const browser = await chromium.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
     await page.goto(
@@ -42,17 +31,17 @@ app.get("/extraerLista", (req, res) => {
     await page.waitForSelector(".mq-grid-products > article", {
       timeout: 40000,
     });
- await autoScroll(page)
-    const sections = await page.locator('.container > section')
-    
-    const countSections = await sections.count()
-    for(let s = 1; s < countSections; s++){
-      let section = await sections.nth(s)
+    await autoScroll(page);
+    const sections = await page.locator(".container > section");
+
+    const countSections = await sections.count();
+    for (let s = 1; s < countSections; s++) {
+      let section = await sections.nth(s);
       const rows = await section.locator(".mq-grid-products");
 
       let arrayData = [];
       // for (let i = 0; i < count; i++) {
-  
+
       let each1 = rows.locator(".mq-product-card");
       let counts = await each1.count();
       let initialData = new Date();
@@ -60,14 +49,14 @@ app.get("/extraerLista", (req, res) => {
       let name;
       // each = await each.elementHandle('.mq-img').getAttribute('src')
       // console.log('each', each)
-  
+
       for (let i = 0; i < counts; i++) {
         let each = each1.nth(i);
         await each.scrollIntoViewIfNeeded({ timeout: 0 });
         await each.isVisible({ timeout: 0 });
-  
+
         let img = await each.locator(".mq-img").getAttribute("src");
-  
+
         name = await each.locator(".mq-product-title").innerText();
         let shortName =
           name.split(" ")[0] +
@@ -76,22 +65,17 @@ app.get("/extraerLista", (req, res) => {
           " " +
           name.split(" ")[2];
         let weight = await each.locator(".mq-product-subtitle").innerText();
-  
+
         let price = await each.locator(".mq-product-price").innerText();
-        let price2 = price.replace("$", "");
-        let price3 = price2.replace(".", "");
-        // price to number
-        let price4 = parseInt(price3);
-  
-        // arrayData.push({name : name.split(' ')[0]})
-        // arrayData.push( {  id: i, img, name, weight, price });
+        let formatedPrice = formatPrice(price)
+
         await setDoc(doc(db, "merqueo", ciudad, "Precios", shortName), {
           id: i,
           img,
           name,
           weight,
-          price4,
-          brand: 'merqueo'
+          formatedPrice,
+          brand: "merqueo",
         })
           .then((resp) => {
             console.log("Guardado con exito");
@@ -100,22 +84,7 @@ app.get("/extraerLista", (req, res) => {
             console.log("error", error);
           });
       }
-
-
     }
-
-    
-
-    
-
-    // addDoc(collection(db, "dataprecios"), {...arrayData })
-    //   .then((resp) => {
-    //     console.log("Guardado con exito");
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-
     await page.close();
 
     await browser.close();
@@ -123,7 +92,7 @@ app.get("/extraerLista", (req, res) => {
 
   console.log("Cargando productos");
 });
-app.get("/lista", (req, res)=> {
+app.get("/lista", (req, res) => {
   (async () => {
     const browser = await chromium.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
@@ -161,7 +130,7 @@ app.get("/lista", (req, res)=> {
 });
 app.get("/listaCiudades", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 350 })
+    const browser = await firefox.launch({ slowMo: 350 });
 
     const page = await browser.newPage();
     await page.goto(`https://merqueo.com`, {
@@ -194,7 +163,6 @@ app.get("/listaCiudades", (req, res) => {
         cityPageName === "bucaramanga" ||
         cityPageName === "copacabana" ||
         cityPageName === "floridablanca"
-        
       ) {
         continue;
       }
@@ -207,110 +175,108 @@ app.get("/listaCiudades", (req, res) => {
           timeout: 0,
         }
       );
-      await innerPage.waitForSelector('.container > section')
-       
-      await autoScroll(innerPage)
-      const sections = await innerPage.locator('.container > section')
-      
-      const countSections = await sections.count()
-      console.log("sections", countSections)
-      for(let s = 1; s < countSections; s++){
-        
-        let section = await sections.nth(s)
-       console.log(await section.getAttribute('id'))
+      await innerPage.waitForSelector(".container > section");
+
+      await autoScroll(innerPage);
+      const sections = await innerPage.locator(".container > section");
+
+      const countSections = await sections.count();
+      console.log("sections", countSections);
+      for (let s = 1; s < countSections; s++) {
+        let section = await sections.nth(s);
+        console.log(await section.getAttribute("id"));
         const rows = await section.locator(".mq-grid-products");
-      await innerPage.waitForSelector(".mq-grid-products > article", {
-        timeout: 30000,
-      });
-      const innerRows = await innerPage.locator(".mq-grid-products");
+        await innerPage.waitForSelector(".mq-grid-products > article", {
+          timeout: 30000,
+        });
+        const innerRows = await innerPage.locator(".mq-grid-products");
 
-      let arrayData = [];
-      // for (let i = 0; i < count; i++) {
+        let arrayData = [];
+        // for (let i = 0; i < count; i++) {
 
-      let each1 = innerRows.locator(".mq-product-card");
-      let counts = await each1.count();
-      let initialData = new Date();
-      arrayData.push(initialData);
-      let name;
-      // each = await each.elementHandle('.mq-img').getAttribute('src')
-      // console.log('each', each)
+        let each1 = innerRows.locator(".mq-product-card");
+        let counts = await each1.count();
+        let initialData = new Date();
+        arrayData.push(initialData);
+        let name;
+        // each = await each.elementHandle('.mq-img').getAttribute('src')
+        // console.log('each', each)
 
-      for (let i = 0; i < counts; i++) {
-        let each = each1.nth(i);
-        // await each.scrollIntoViewIfNeeded({ timeout: 0 });
-        await each.isVisible({ timeout: 0 });
+        for (let i = 0; i < counts; i++) {
+          let each = each1.nth(i);
+          // await each.scrollIntoViewIfNeeded({ timeout: 0 });
+          await each.isVisible({ timeout: 0 });
 
-        let img = await each.locator(".mq-img").getAttribute("src");
+          let img = await each.locator(".mq-img").getAttribute("src");
 
-        name = await each.locator(".mq-product-title").innerText();
-        const lengthName = name.split(" ").length;
-        let shortName;
-        if (lengthName > 3) {
-          shortName =
-            name.split(" ")[0] +
-            " " +
-            name.split(" ")[1] +
-            " " +
-            name.split(" ")[2];
-        } else if (lengthName > 2) {
-          shortName = name.split(" ")[0] + " " + name.split(" ")[1];
-          shortName = shortName.toLowerCase();
-        } else {
-          shortName = name.split(" ")[0];
-        }
-
-        let weight = await each.locator(".mq-product-subtitle").innerText();
-        let date = new Date();
-        date = date.toLocaleDateString();
-        let splitdate = date.split("/");
-
-        let day = splitdate[1];
-        date = date.replace(/\//g, "-");
-        name = name.replace(/\//g, "-");
-        let price = await each.locator(".mq-product-price").innerText();
-        let price2 = price.replace("$", "");
-        let price3 = price2.replace(".", "");
-        // price to number
-        let price4 = parseInt(price3);
-
-        await setDoc(
-          doc(
-            db,
-            "merqueo",
-            cityPageName,
-            "Historico",
-            name,
-            "preciosDiarios",
-            date
-          ),
-          {
-            date,
-            price: price4,
-            brand: 'merqueo'
+          name = await each.locator(".mq-product-title").innerText();
+          const lengthName = name.split(" ").length;
+          let shortName;
+          if (lengthName > 3) {
+            shortName =
+              name.split(" ")[0] +
+              " " +
+              name.split(" ")[1] +
+              " " +
+              name.split(" ")[2];
+          } else if (lengthName > 2) {
+            shortName = name.split(" ")[0] + " " + name.split(" ")[1];
+            shortName = shortName.toLowerCase();
+          } else {
+            shortName = name.split(" ")[0];
           }
-        )
-          .then((resp) => {
-            console.log("Guardado el precio actual con exito");
-          })
-          .catch((error) => {
-            console.log("error", error);
-          });
-        // await setDoc(doc(db, "merqueo", cityPageName, "Precios", name), {
-        //   id: i,
-        //   name,
-        //   price: price4,
-        //   weight,
-        //   img,
-        //   date,
-        // })
-        //   .then((resp) => {
-        //     console.log("Guardado con exito");
-        //   })
-        //   .catch((error) => {
-        //     console.log("error", error);
-        //   });
+
+          let weight = await each.locator(".mq-product-subtitle").innerText();
+          let date = new Date();
+          date = date.toLocaleDateString();
+          let splitdate = date.split("/");
+
+          let day = splitdate[1];
+          date = date.replace(/\//g, "-");
+          name = name.replace(/\//g, "-");
+          let price = await each.locator(".mq-product-price").innerText();
+        
+          // price to number
+          let formatedPrice = formatPrice(price)
+
+          await setDoc(
+            doc(
+              db,
+              "merqueo",
+              cityPageName,
+              "Historico",
+              name,
+              "preciosDiarios",
+              date
+            ),
+            {
+              date,
+              price: formatedPrice,
+              brand: "merqueo",
+            }
+          )
+            .then((resp) => {
+              console.log("Guardado el precio actual con exito");
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
+          // await setDoc(doc(db, "merqueo", cityPageName, "Precios", name), {
+          //   id: i,
+          //   name,
+          //   price: price4,
+          //   weight,
+          //   img,
+          //   date,
+          // })
+          //   .then((resp) => {
+          //     console.log("Guardado con exito");
+          //   })
+          //   .catch((error) => {
+          //     console.log("error", error);
+          //   });
+        }
       }
-    }
 
       await innerPage.close();
     }
@@ -347,7 +313,7 @@ app.get("/getCornerShop", (req, res) => {
   (async () => {
     const browser = await firefox.launch({ slowMo: 800 });
     const page = await browser.newPage();
-    await page.goto(`https://web.cornershopapp.com/`,{
+    await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
       // Remove the timeout
       timeout: 0,
@@ -383,7 +349,7 @@ app.get("/getCornerShop", (req, res) => {
     let cityPageName;
     let count = await firstRows.count();
     console.log("Ciudades", count);
-    for (let i = 6; i < count; i++) {
+    for (let i = 0; i < count; i++) {
       await page.goto(`https://web.cornershopapp.com/location-selector`, {
         waitUntil: "load",
         // Remove the timeout
@@ -486,29 +452,16 @@ app.get("/getCornerShop", (req, res) => {
                 let price = await product
                   .locator(".product-content > .product-info > .price")
                   .textContent();
-                price = price.replace(/(\COP)/g, "");
-                price = price.replace(/(\$)/g, "");
-                price = price.replace(/(\,)/g, "");
-                price = parseInt(price);
-
+               let formatedPrice = formatPrice(price)
                 let image = await product
                   .locator(".product-img > div > img")
                   .getAttribute("src");
-
-                // let weight = await product
-                //   .locator(".product-content > .product-info > .package")
-                //   .textContent();
                 cityPageName = cityPageName
                   .normalize("NFD")
                   .replace(/[\u0300-\u036f]/g, "");
-                cityPageName = cityPageName.toLowerCase();
+                cityPageName = formatCityName(cityPageName)
                 let date = new Date();
-                date = date.toLocaleDateString();
-                let splitdate = date.split("/");
-
-                let day = splitdate[1];
-                date = date.replace(/\//g, "-");
-
+                date = formatDate(date)
                 await setDoc(
                   doc(
                     db,
@@ -521,8 +474,8 @@ app.get("/getCornerShop", (req, res) => {
                   ),
                   {
                     date,
-                    price,
-                    brand:'cornershop'
+                    price: formatedPrice,
+                    brand: "cornershop",
                   }
                 )
                   .then((res) => {
@@ -531,32 +484,15 @@ app.get("/getCornerShop", (req, res) => {
                   .catch((err) => {
                     console.log("error", err);
                   });
-
-                // await setDoc(
-                //   doc(db, "cornershop", cityPageName, "precios-jumbo", name),
-                //   {
-                //     name,
-                //     img : image,
-                //     price,
-                //     weight,
-                //     date,
-                //   }
-                // )
-                //   .then((resp) => {
-                //     console.log("Guardado con exito");
-                //   })
-                //   .catch((error) => {
-                //     console.log(error);
-                //   });
+    
               }
             }
-          }
-          console.log(name);
+          }        
         }
       }
     }
   })();
-  console.log("Connected to React");
+  console.log("Connected, retrieving data from CornerShop");
 });
 
 app.get("/getOlimpica", async (req, res) => {
@@ -572,173 +508,75 @@ app.get("/getOlimpica", async (req, res) => {
       }
     );
     await page.waitForSelector('//*[@id="gallery-layout-container"]');
-    
+
     // await autoScroll(page)
-    
-    const rows = await page.locator('.vtex-search-result-3-x-galleryItem')
+
+    const rows = await page.locator(".vtex-search-result-3-x-galleryItem");
     const categorias = await rows.count();
-    for(let i = 0; i < categorias; i++){
-const each = rows.nth(i)
-const url = await each.locator('a').getAttribute('href')
-const completeUrl = `https://www.olimpica.com${url}`
-const name = await each.locator('.vtex-product-summary-2-x-productNameContainer').textContent()
-console.log(name)
-let pagePromise = page.context().waitForEvent('page',p => p.url() === completeUrl)
+    for (let i = 0; i < categorias; i++) {
+      const each = rows.nth(i);
+      const url = await each.locator("a").getAttribute("href");
+      const completeUrl = `https://www.olimpica.com${url}`;
+      const name = await each
+        .locator(".vtex-product-summary-2-x-productNameContainer")
+        .textContent();
+      console.log(name);
+      let pagePromise = page
+        .context()
+        .waitForEvent("page", (p) => p.url() === completeUrl);
 
-await page.click(`text=${name}`,{modifiers: ['Control']})
-const newPage = await pagePromise
-await newPage.bringToFront()
-await newPage.waitForSelector('.vtex-store-components-3-x-container')
-const img = await newPage.locator('.vtex-store-components-3-x-productImageTag').getAttribute('src')
-const buttons = await newPage.locator('.vtex-store-components-3-x-skuSelectorItem')
-const countButtons = await buttons.count()
-for(let i = 0; i < countButtons; i++){
-  const innerEach = buttons.nth(i)
-  const innerName = await innerEach.locator('.vtex-store-components-3-x-skuSelectorItemTextValue--sku-selector').textContent()
-  await newPage.locator('vtex-rich-text-0-x-wrapper--btn-trigger-location')
+      await page.click(`text=${name}`, { modifiers: ["Control"] });
+      const newPage = await pagePromise;
+      await newPage.bringToFront();
+      await newPage.waitForSelector(".vtex-store-components-3-x-container");
+      const img = await newPage
+        .locator(".vtex-store-components-3-x-productImageTag")
+        .getAttribute("src");
+      const buttons = await newPage.locator(
+        ".vtex-store-components-3-x-skuSelectorItem"
+      );
+      const countButtons = await buttons.count();
+      for (let i = 0; i < countButtons; i++) {
+        const innerEach = buttons.nth(i);
+        const innerName = await innerEach
+          .locator(
+            ".vtex-store-components-3-x-skuSelectorItemTextValue--sku-selector"
+          )
+          .textContent();
+        await newPage.locator(
+          "vtex-rich-text-0-x-wrapper--btn-trigger-location"
+        );
 
+        await innerEach.click(`text=${innerName}`);
+        await newPage.waitForSelector(
+          ".vtex-rich-text-0-x-wrapper--btn-trigger-location",
+          { timeout: 0 }
+        );
 
-  await innerEach.click(`text=${innerName}`)
- await newPage.waitForSelector('.vtex-rich-text-0-x-wrapper--btn-trigger-location',{timeout:0})
-  
-  const newPrice = await newPage.locator('body > div.render-container.render-route-store-product > div > div.vtex-store__template.bg-base > div > div > div > div:nth-child(8) > div > div:nth-child(1) > div.vtex-flex-layout-0-x-flexRow.vtex-flex-layout-0-x-flexRow--product-container > section > div > div.pr0.items-stretch.vtex-flex-layout-0-x-stretchChildrenWidth.flex > div > div.vtex-flex-layout-0-x-flexColChild.vtex-flex-layout-0-x-flexColChild--pr-ol-rigth-col.pb7 > div > div:nth-child(4) > div > div.olimpica-dinamic-flags-0-x-strikePrice.false > span > span:nth-child(3)').textContent()
+        const newPrice = await newPage
+          .locator(
+            "body > div.render-container.render-route-store-product > div > div.vtex-store__template.bg-base > div > div > div > div:nth-child(8) > div > div:nth-child(1) > div.vtex-flex-layout-0-x-flexRow.vtex-flex-layout-0-x-flexRow--product-container > section > div > div.pr0.items-stretch.vtex-flex-layout-0-x-stretchChildrenWidth.flex > div > div.vtex-flex-layout-0-x-flexColChild.vtex-flex-layout-0-x-flexColChild--pr-ol-rigth-col.pb7 > div > div:nth-child(4) > div > div.olimpica-dinamic-flags-0-x-strikePrice.false > span > span:nth-child(3)"
+          )
+          .textContent();
 
-  console.log('innerName, innerPrice', innerName, newPrice)
+        console.log("innerName, innerPrice", innerName, newPrice);
+      }
 
-
-}
-
-
-
-// const price = await each.locator('.olimpica-dinamic-flags-0-x-currencyInteger').textContent()
-// console.log(price)
-// const image = await each.locator('.vtex-product-summary-2-x-imageNormal').getAttribute('src')
-// console.log(image)
-
-
-
+      // const price = await each.locator('.olimpica-dinamic-flags-0-x-currencyInteger').textContent()
+      // console.log(price)
+      // const image = await each.locator('.vtex-product-summary-2-x-imageNormal').getAttribute('src')
+      // console.log(image)
     }
-    
+
     console.log("categorias", categorias);
-
-   
-  })()
-  console.log('A por olimpica')
-});
-
-app.get("/uploadImages", (req, res) => {
-  (async () => {
-    const querySnapshot = await getDocs(
-      collection(db, `cornershop/bogota/precios-jumbo`)
-    );
-    let productos = [];
-    querySnapshot.forEach((doc) => {
-      productos.push({
-        id: doc.id,
-        data: doc.data(),
-      });
-    });
-    for (let i = 0; i < productos.length; i++) {
-      let { image, name } = productos[i].data;
-
-      let nameWithoutSpaces = name.replace(/\s/g, "");
-
-      const file = fs.createWriteStream(`${nameWithoutSpaces}.jpg`);
-
-      https
-        .get(image, (resp) => {
-          resp.pipe(file);
-        })
-        .on("error", (err) => {
-          console.log("Error: " + err.message);
-        });
-      const metadata = {
-        contentType: "image/jpeg",
-      };
-      const localFile = fs.createReadStream(`${nameWithoutSpaces}.jpg`);
-
-      let imageRef = ref(storage, `fotosJumbo/${nameWithoutSpaces}`);
-      let uploadedUrl;
-
-      // Uploads a local file to the bucket
-      //     await storage.bucket("recetapp-b9a54.appspot.com/fotosJumbo").upload(`${nameWithoutSpaces}.jpg`, {
-      //         // Support for HTTP requests made with `Accept-Encoding: gzip`
-      //         gzip: true,
-      //         // By setting the option `destination`, you can change the name of the
-      //         // object you are uploading to a bucket.
-      //         metadata: {
-      //             // Enable long-lived HTTP caching headers
-      //             // Use only if the contents of the file will never change
-      //             // (If the contents will change, use cacheControl: 'no-cache')
-      //             cacheControl: 'public, max-age=31536000',
-      //         },
-      // });
-
-      //       const uploadTask = uploadBytes(imageRef, `${nameWithoutSpaces}.jpg`, metadata);
-      //       uploadTask.on(
-      //         "state_changed",
-      //         (snapshot) => {
-      //           switch (snapshot.state) {
-      //             case "paused":
-      //               console.log("Upload is paused");
-      //               break;
-      //             case "running":
-      //               console.log("Upload is running");
-      //               break;
-      //           }
-      //         },
-      //         (error) => {
-      //           // Handle unsuccessful uploads
-      //           console.log(error, 'error')
-      //         },
-      //         () => {
-      //           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-      //             uploadedUrl = downloadURL;
-      //             console.log("File available at", downloadURL);
-      //           });
-      //           setDoc(
-      //             doc(db, "cornershop", 'bogota', "precios-jumbo", name),
-      //             {
-      //
-      //               image:uploadedUrl,
-      //
-      //             }
-      //           )
-      //             .then((resp) => {
-      //               console.log("Guardado con exito");
-      //             })
-      //             .catch((error) => {
-      //               console.log(error);
-      //             });
-      //
-      //         }
-      //       );
-    }
   })();
-  console.log("Entrando a subir imagenes");
+  console.log("A por olimpica");
 });
 
-app.get('/',(req,res) => {
-  res.send('hola mundo')
-})
+app.get("/", (req, res) => {
+  res.send("hola mundo");
+});
 
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, console.log(`Server started on port ${PORT}`));
-async function autoScroll(page){
-  await page.evaluate(async () => {
-      await new Promise((resolve, reject) => {
-          var totalHeight = 0;
-          var distance = 100;
-          var timer = setInterval(() => {
-              var scrollHeight = document.body.scrollHeight;
-              window.scrollBy(0, distance);
-              totalHeight += distance;
-              if(totalHeight >= scrollHeight - window.innerHeight){
-                  clearInterval(timer);
-                  resolve();
-              }
-          }, 350);
-      });
-  });
-}
