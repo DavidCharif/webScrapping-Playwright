@@ -261,6 +261,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     const browser = await firefox.launch({slowMo: 450 });
 
     console.log('Iniciando page')
+    console.log("sin push 😎")
     const page = await browser.newPage();
     console.log('despues page')
     
