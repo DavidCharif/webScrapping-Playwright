@@ -316,7 +316,9 @@ app.get("/getCornerShop/:id", (req, res) => {
     console.log('Encontrado 😁')
     const firstRows = await page.locator(
       '//*[@id="city-country"]/option'
-    );
+      ,{
+        timeout:0,
+      });
     console.log('mirando las opciones')
     let cityPageName;
     let count = await firstRows.count();
