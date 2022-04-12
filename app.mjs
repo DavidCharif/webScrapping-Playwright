@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({slowMo: 400 });
+    const browser = await firefox.launch({slowMo: 300 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
@@ -275,7 +275,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.waitForSelector(
       "#app-container > main > div > section:nth-child(1) > section > div > figure:nth-child(1) > div > figure:nth-child(1)",
       {
-        timeout: 0,
+        timeout:30000,
       }
     );
     await page.waitForSelector(
@@ -405,13 +405,10 @@ app.get("/getCornerShop/:id", (req, res) => {
                 let image = await product
                   .locator(".product-img > div > img")
                   .getAttribute("src");
-                cityPageName = cityPageName
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "");
                 cityPageName = formatCityName(cityPageName)
                 let date = new Date();
-                // date = formatDate(date)
-                date = '4-11-2022'
+                date = formatDate(date)
+                
                 await setDoc(
                   doc(
                     db,
