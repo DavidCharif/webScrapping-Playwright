@@ -1,13 +1,14 @@
 import express from "express";
 import cors from "cors";
 import autoScroll from "./helpers/AutoScroll.mjs";
-// import { chromium, firefox } from "playwright";
+import { chromium } from "playwright";
 import { firefox } from "playwright-firefox";
 import firestore from "./firebase/firebaseConfig.js";
 import { doc, setDoc } from "@firebase/firestore";
 import formatPrice from "./helpers/formatPrice.mjs";
 import formatCityName from "./helpers/formatCityName.mjs";
 import formatDate from "./helpers/formatDate.mjs";
+import formatPriceJumbo from "./helpers/formatPriceJumbo.js";
 const app = express();
 const { db } = firestore;
 app.use(
@@ -130,7 +131,7 @@ app.get("/lista", (req, res) => {
 });
 app.get("/listaCiudades", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 350 });
+    const browser = await chromium.launch({headless:false, slowMo: 450 });
 
     const page = await browser.newPage();
     await page.goto(`https://merqueo.com`, {
@@ -176,63 +177,29 @@ app.get("/listaCiudades", (req, res) => {
         }
       );
       await innerPage.waitForSelector(".container > section");
-
       await autoScroll(innerPage);
       const sections = await innerPage.locator(".container > section");
-
-      const countSections = await sections.count();
-      console.log("sections", countSections);
+      const countSections = await sections.count();     
+      console.log('countSections', countSections) 
       for (let s = 1; s < countSections; s++) {
-        let section = await sections.nth(s);
-        console.log(await section.getAttribute("id"));
-        const rows = await section.locator(".mq-grid-products");
+        let section = await sections.nth(s);                
         await innerPage.waitForSelector(".mq-grid-products > article", {
-          timeout: 30000,
+          timeout: 0,
         });
         const innerRows = await innerPage.locator(".mq-grid-products");
-
-        let arrayData = [];
-        // for (let i = 0; i < count; i++) {
-
         let each1 = innerRows.locator(".mq-product-card");
         let counts = await each1.count();
-        let initialData = new Date();
-        arrayData.push(initialData);
-        let name;
-        // each = await each.elementHandle('.mq-img').getAttribute('src')
-        // console.log('each', each)
+    
 
         for (let i = 0; i < counts; i++) {
           let each = each1.nth(i);
           // await each.scrollIntoViewIfNeeded({ timeout: 0 });
           await each.isVisible({ timeout: 0 });
-
           let img = await each.locator(".mq-img").getAttribute("src");
-
-          name = await each.locator(".mq-product-title").innerText();
-          const lengthName = name.split(" ").length;
-          let shortName;
-          if (lengthName > 3) {
-            shortName =
-              name.split(" ")[0] +
-              " " +
-              name.split(" ")[1] +
-              " " +
-              name.split(" ")[2];
-          } else if (lengthName > 2) {
-            shortName = name.split(" ")[0] + " " + name.split(" ")[1];
-            shortName = shortName.toLowerCase();
-          } else {
-            shortName = name.split(" ")[0];
-          }
-
+          let name = await each.locator(".mq-product-title").innerText();        
           let weight = await each.locator(".mq-product-subtitle").innerText();
           let date = new Date();
-          date = date.toLocaleDateString();
-          let splitdate = date.split("/");
-
-          let day = splitdate[1];
-          date = date.replace(/\//g, "-");
+          date = formatDate(date)
           name = name.replace(/\//g, "-");
           let price = await each.locator(".mq-product-price").innerText();
         
@@ -283,35 +250,14 @@ app.get("/listaCiudades", (req, res) => {
     await page.close();
 
     await browser.close();
-    //     let texts = await cell.allInnerTexts();
-    //
-    //     let arrayData = [];
-    //
-    //     texts.forEach((element) => {
-    //       const cleanElement = element.split("\n");
-    //       cleanElement.forEach((element) => {
-    //         if (element.length > 2) {
-    //           console.log("element", element);
-    //           arrayData.push(element);
-    //         }
-    //       });
-    //     });
-    // addDoc(collection(db, "ciudades"), { ...arrayData })
-    //   .then((resp) => {
-    //     console.log("Guardado con exito");
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
 
-    // res.send(JSON.stringify(arrayData));
   })();
   console.log("Connected to React");
-  // send arrayData as response
+ 
 });
 app.get("/getCornerShop", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 800 });
+    const browser = await chromium.launch({headless:false ,slowMo: 800 });
     const page = await browser.newPage();
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
@@ -368,7 +314,6 @@ app.get("/getCornerShop", (req, res) => {
       const citys = await page.locator("select[data-testid='city-select']");
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
-
       await page.waitForSelector('[data-testid="action-button"]');
       await page.click('[data-testid="action-button"]');
       await page.waitForSelector(
@@ -376,8 +321,7 @@ app.get("/getCornerShop", (req, res) => {
       );
 
       await page.goto(`https://web.cornershopapp.com/`, {
-        waitUntil: "load",
-        // Remove the timeout
+        waitUntil: "load",        
         timeout: 0,
       });
       await page.waitForSelector("//span[text()='Jumbo. ']");
@@ -393,19 +337,18 @@ app.get("/getCornerShop", (req, res) => {
       const rows = await page.locator(
         "#app-container > main > div > div > section.department-top-products > div > div"
       );
-      const categorias = await rows.count();
-      console.log("categorias", categorias);
+      const categorias = await rows.count();    
 
-      for (let i = 0; i < count; i++) {
-        let each = await rows.nth(i);
+      for (let i = 0; i < categorias; i++) {
+        let each = rows.nth(i);
         await each.scrollIntoViewIfNeeded({ timeout: 0 });
         await each.isVisible({ timeout: 0 });
-        await page.locator(".department-box card");
+        page.locator(".department-box card");
         let name = await each.locator("h2 > span").textContent();
         console.log("name", name);
-        if (name !== "Fruits & Vegetables") {
-          continue;
-        } else {
+        // if (name !== "Fruits & Vegetables") {
+        //   continue;
+        // } else {
           await page.click(
             "#app-container > main > div > div > section.department-top-products > div > div:nth-child(1) > div.img-background.card-header > button"
           );
@@ -424,9 +367,9 @@ app.get("/getCornerShop", (req, res) => {
             await cell.isVisible({ timeout: 0 });
             await each.locator(".department-box card");
             let name = await cell.locator("h2 > span").textContent();
-            if (name !== "Fresh Vegetables") {
-              continue;
-            } else {
+            // if (name !== "Fresh Vegetables") {
+            //   continue;
+            // } else {
               await page.click(
                 "#app-container > main > div > div > div:nth-child(5) > div.clickable.card-header"
               );
@@ -437,22 +380,26 @@ app.get("/getCornerShop", (req, res) => {
                 "#app-container > main > div > div > div.aisle-box.card > div.products-grid > div"
               );
               const countProducts = await products.count();
-              console.log("countProducts", countProducts);
-              for (let z = 1; z < countProducts; z++) {
+             
+              for (let z = 0; z < countProducts; z++) {
+                
                 let product = await products.nth(z);
                 await product.scrollIntoViewIfNeeded({ timeout: 0 });
                 await product.isVisible({ timeout: 0 });
-
+              //Is product in stock
+                let isOutOfStock = await product.locator('.out-of-stock-badge').allTextContents()                
+                if(isOutOfStock[0] === 'Out of stock'){
+                  console.log('No stock, sorry 😢')
+                  break
+                }
+                  
                 let name = await product
                   .locator(".product-content > .product-info > h3")
                   .textContent();
-                //remove spaces name
-                let nameWithoutSpaces = name.replace(/\s/g, "");
-
-                let price = await product
+               let price = await product
                   .locator(".product-content > .product-info > .price")
                   .textContent();
-               let formatedPrice = formatPrice(price)
+               let formatedPrice = formatPriceJumbo(price)
                 let image = await product
                   .locator(".product-img > div > img")
                   .getAttribute("src");
@@ -486,8 +433,8 @@ app.get("/getCornerShop", (req, res) => {
                   });
     
               }
-            }
-          }        
+            // }
+          // }        
         }
       }
     }
