@@ -307,7 +307,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
     console.log('Haciendo click')
     console.log('Esperando selector de ciudad')
-    await page.waitForSelector('[data-testid="city-select"]',{      
+    await page.waitForSelector('//*[@id="modal-container"]/div[2]/div/div[2]/div/div',{      
       timeout:0,
     });
     console.log('Encontrado 😁')
@@ -416,7 +416,7 @@ app.get("/getCornerShop/:id", (req, res) => {
               //Is product in stock
                 let isOutOfStock = await product.locator('.out-of-stock-badge').allTextContents()                
                 if(isOutOfStock[0] === 'Out of stock'){
-                  console.log('No stock, sorry 😢')
+                  console.log('No more stock, sorry 😢')
                   break
                 }
                   
