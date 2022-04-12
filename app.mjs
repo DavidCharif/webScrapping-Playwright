@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 300 });
+    const browser = await firefox.launch({headless:false, slowMo: 300 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
@@ -285,11 +285,12 @@ app.get("/getCornerShop/:id", (req, res) => {
       "#app-container > header > div.cart-address-selector-control-container"
     );
     await page.waitForSelector(
-      "#modal-container > div.cs-dialog.location-selector-dialog.modal > div > div.cs-modal-children-wrapper > div > div > form > section.city-locality-form-group.form-group.collection-view.grid-column.width-12 > div > div > div > div > div:nth-child(1)"
+      ".form-select"
     );
     await page.waitForSelector(
-      "#modal-container > div.cs-dialog.location-selector-dialog.modal > div > div.cs-modal-children-wrapper > div > div > form > section.city-locality-form-group.form-group.collection-view.grid-column.width-12 > div > div > div > div > div:nth-child(1) > div"
+      "#city-country"
     );
+    await page.click('#city-country')
     await page.waitForSelector('[data-testid="city-select"]');
     const firstRows = await page.locator(
       '[data-testid="city-select"] > option'
