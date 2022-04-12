@@ -297,15 +297,14 @@ app.get("/getCornerShop/:id", (req, res) => {
       ".form-select"
     );
     console.log('esperando el selectore de ciudad')
-
     await page.waitForSelector(
-      "#city-country",
+      '//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div',
       {
         timeout:0,
       }
     );
     console.log('encontrado 😴')
-    await page.click('#city-country')
+    await page.click('//*[@id="city-country"]')
     console.log('Haciendo click')
     await page.waitForSelector('[data-testid="city-select"]');
     const firstRows = await page.locator(
