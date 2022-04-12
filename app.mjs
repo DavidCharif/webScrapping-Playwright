@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({slowMo: 300 });
+    const browser = await firefox.launch({headless:false , slowMo: 300 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
@@ -272,12 +272,12 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.click(
       "#modal-container > div.cs-dialog.welcome-dialog.modal > div > div > div > div.welcome-footer-container > div > button.continue-button.primary.full-width.cs-button.button"
     );
-    // await page.waitForSelector(
-    //   "#app-container > main > div > section:nth-child(1) > section > div > figure:nth-child(1) > div > figure:nth-child(1)",
-    //   {
-    //     timeout:0,
-    //   }
-    // );
+    await page.waitForSelector(
+      ".shopping-list-selector-control",
+      {
+        timeout:0,
+      }
+    );
     await page.waitForSelector(
       "#app-container > header > div.cart-address-selector-control-container"
     );
