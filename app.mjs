@@ -258,13 +258,16 @@ app.get("/listaCiudades", (req, res) => {
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     console.log('Creando browser')
-    const browser = await firefox.launch({slowMo: 700 });
+    const browser = await firefox.launch();
 
     console.log('Iniciando page')
     
     const context =  await browser.newContext()
 
-    const page = await context.newPage();
+    const page = await context.newPage({
+      slowMo: 800,
+
+    });
     console.log('despues page')
     
     //req params
@@ -312,7 +315,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     });
     console.log('Encontrado 😁')
     const firstRows = await page.locator(
-      '[data-testid="city-select"] > option'
+      '//*[@id="city-country"]/option'
     );
     console.log('mirando las opciones')
     let cityPageName;
