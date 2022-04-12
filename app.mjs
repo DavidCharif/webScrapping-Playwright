@@ -255,10 +255,12 @@ app.get("/listaCiudades", (req, res) => {
   console.log("Connected to React");
  
 });
-app.get("/getCornerShop", (req, res) => {
+app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     const browser = await chromium.launch({headless:false ,slowMo: 800 });
     const page = await browser.newPage();
+    //req params
+    let id = req.params.id;
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
       // Remove the timeout
@@ -295,7 +297,7 @@ app.get("/getCornerShop", (req, res) => {
     let cityPageName;
     let count = await firstRows.count();
     console.log("Ciudades", count);
-    for (let i = 0; i < count; i++) {
+    for (let i = id; i < count; i++) {
       await page.goto(`https://web.cornershopapp.com/location-selector`, {
         waitUntil: "load",
         // Remove the timeout
@@ -408,7 +410,8 @@ app.get("/getCornerShop", (req, res) => {
                   .replace(/[\u0300-\u036f]/g, "");
                 cityPageName = formatCityName(cityPageName)
                 let date = new Date();
-                date = formatDate(date)
+                // date = formatDate(date)
+                date = '4-11-2022'
                 await setDoc(
                   doc(
                     db,
