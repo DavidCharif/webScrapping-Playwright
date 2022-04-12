@@ -257,8 +257,13 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
+    console.log('Creando browser')
     const browser = await firefox.launch({slowMo: 450 });
+
+    console.log('Iniciando page')
     const page = await browser.newPage();
+    console.log('despues page')
+    
     //req params
     console.log('Iniciando page')
     await page.goto(`https://web.cornershopapp.com/`, {
