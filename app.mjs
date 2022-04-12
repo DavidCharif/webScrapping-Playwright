@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import autoScroll from "./helpers/AutoScroll.mjs";
-import { chromium } from "playwright";
+// import { chromium } from "playwright";
 import { firefox } from "playwright-firefox";
 import firestore from "./firebase/firebaseConfig.js";
 import { doc, setDoc } from "@firebase/firestore";
@@ -131,7 +131,7 @@ app.get("/lista", (req, res) => {
 });
 app.get("/listaCiudades", (req, res) => {
   (async () => {
-    const browser = await chromium.launch({headless:false, slowMo: 450 });
+    const browser = await firefox.launch({ slowMo: 450 });
 
     const page = await browser.newPage();
     await page.goto(`https://merqueo.com`, {
@@ -257,7 +257,7 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await chromium.launch({headless:false ,slowMo: 800 });
+    const browser = await firefox.launch({slowMo: 800 });
     const page = await browser.newPage();
     //req params
     let id = req.params.id;
