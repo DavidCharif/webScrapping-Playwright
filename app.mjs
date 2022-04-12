@@ -257,10 +257,10 @@ app.get("/listaCiudades", (req, res) => {
 });
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
-    const browser = await firefox.launch({ slowMo: 500 });
+    const browser = await firefox.launch({slowMo: 400 });
     const page = await browser.newPage();
     //req params
-    let id = req.params.id;
+    
     await page.goto(`https://web.cornershopapp.com/`, {
       waitUntil: "load",
       // Remove the timeout
@@ -301,6 +301,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     let cityPageName;
     let count = await firstRows.count();
     console.log("Ciudades", count);
+    let id = req.params.id;
     for (let i = id; i < count; i++) {
       await page.goto(`https://web.cornershopapp.com/location-selector`, {
         waitUntil: "load",
