@@ -258,7 +258,7 @@ app.get("/listaCiudades", (req, res) => {
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     console.log('Creando browser')
-    const browser = await firefox.launch({slowMo: 650 });
+    const browser = await firefox.launch({slowMo: 700 });
 
     console.log('Iniciando page')
     
@@ -306,8 +306,11 @@ app.get("/getCornerShop/:id", (req, res) => {
     console.log('encontrado 😴')
     await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
     console.log('Haciendo click')
-    await page.waitForSelector('//*[@id="city-country"]/option[1]');
     console.log('Esperando selector de ciudad')
+    await page.waitForSelector('//*[@id="city-country"]/option[1]'),{
+      timeout:0,
+    };
+    console.log('Encontrado 😁')
     const firstRows = await page.locator(
       '[data-testid="city-select"] > option'
     );
@@ -336,7 +339,9 @@ app.get("/getCornerShop/:id", (req, res) => {
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
       console.log('seleccionando opcion')
-      await page.waitForSelector('[data-testid="action-button"]');
+      await page.waitForSelector('[data-testid="action-button"]',{
+        timeout:0,
+      });
       await page.click('[data-testid="action-button"]');
       await page.waitForSelector(
         "#app-container > header > div.cart-address-selector-control-container"
