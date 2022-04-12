@@ -258,6 +258,7 @@ app.get("/listaCiudades", (req, res) => {
 app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     console.log('Creando browser')
+    const cities = ['Bogotá', 'Cali', 'Chía', 'Cajicá', 'Sabaneta', 'Envigado' ,'Medellín']
     const browser = await firefox.launch();
 
     console.log('Iniciando page')
@@ -307,37 +308,38 @@ app.get("/getCornerShop/:id", (req, res) => {
       }
     );
     console.log('encontrado 😴')
-    await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
-    console.log('Haciendo click')
-    console.log('Esperando selector de ciudad')
-    await page.waitForSelector('//*[@id="modal-container"]/div[2]/div/div[2]/div/div',{      
-      timeout:0,
-    });
+    // await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
+    // console.log('Haciendo click')
+    // console.log('Esperando selector de ciudad')
+    // await page.waitForSelector('//*[@id="modal-container"]/div[2]/div/div[2]/div/div',{      
+    //   timeout:0,
+    // });
     console.log('Encontrado 😁')
-    const firstRows = await page.locator(
-      '//*[@id="city-country"]/option'
-      ,{
-        timeout:0,
-      });
+    // const firstRows = await page.locator(
+    //   '//*[@id="city-country"]/option'
+    //   ,{
+    //     timeout:0,
+    //   });
     console.log('mirando las opciones')
-    let cityPageName;
-    let count = await firstRows.count();
-    console.log("Ciudades", count);
-    let id = req.params.id;
-    for (let i = id; i < count; i++) {
-      await page.goto(`https://web.cornershopapp.com/location-selector`, {
-        waitUntil: "load",
-        // Remove the timeout
-        timeout: 0,
-      });
-      await page.waitForSelector("div.location-selector-container");
-      await page.waitForSelector("select[data-testid='city-select']");
-      const firstRows = await page.locator(
-        '[data-testid="city-select"] > option'
-      );
-
-      let each = firstRows.nth(i);
-      cityPageName = await each.innerText();
+    let id = req.params.id
+    let cityPageName = cities[id]
+//     let count = await firstRows.count();
+//     console.log("Ciudades", count);
+//     let id = req.params.id;
+//     
+//       await page.goto(`https://web.cornershopapp.com/location-selector`, {
+//         waitUntil: "load",
+//         // Remove the timeout
+//         timeout: 0,
+//       });
+//       await page.waitForSelector("div.location-selector-container");
+//       await page.waitForSelector("select[data-testid='city-select']");
+//       const firstRows = await page.locator(
+//         '[data-testid="city-select"] > option'
+//       );
+// 
+//       let each = firstRows.nth(i);
+//       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
       const citys = await page.locator("select[data-testid='city-select']");
@@ -467,7 +469,7 @@ app.get("/getCornerShop/:id", (req, res) => {
           // }        
         }
       }
-    }
+    
   })();
   console.log("Connected, retrieving data from CornerShop");
 });
