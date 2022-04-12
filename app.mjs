@@ -272,12 +272,12 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.click(
       "#modal-container > div.cs-dialog.welcome-dialog.modal > div > div > div > div.welcome-footer-container > div > button.continue-button.primary.full-width.cs-button.button"
     );
-    await page.waitForSelector(
-      "#app-container > main > div > section:nth-child(1) > section > div > figure:nth-child(1) > div > figure:nth-child(1)",
-      {
-        timeout:30000,
-      }
-    );
+    // await page.waitForSelector(
+    //   "#app-container > main > div > section:nth-child(1) > section > div > figure:nth-child(1) > div > figure:nth-child(1)",
+    //   {
+    //     timeout:0,
+    //   }
+    // );
     await page.waitForSelector(
       "#app-container > header > div.cart-address-selector-control-container"
     );
