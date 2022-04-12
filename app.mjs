@@ -296,7 +296,7 @@ app.get("/getCornerShop/:id", (req, res) => {
     await page.waitForSelector(
       ".form-select"
     );
-    consolo.log('esperando el selectore de ciudad')
+    console.log('esperando el selectore de ciudad')
     await page.waitForSelector(
       "#city-country",
       {
