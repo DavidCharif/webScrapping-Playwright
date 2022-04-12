@@ -304,7 +304,7 @@ app.get("/getCornerShop/:id", (req, res) => {
       }
     );
     console.log('encontrado 😴')
-    await page.click('//*[@id="city-country"]')
+    await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
     console.log('Haciendo click')
     await page.waitForSelector('[data-testid="city-select"]');
     const firstRows = await page.locator(
@@ -333,6 +333,7 @@ app.get("/getCornerShop/:id", (req, res) => {
       const citys = await page.locator("select[data-testid='city-select']");
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
+      console.log('seleccionando opcion')
       await page.waitForSelector('[data-testid="action-button"]');
       await page.click('[data-testid="action-button"]');
       await page.waitForSelector(
@@ -443,7 +444,7 @@ app.get("/getCornerShop/:id", (req, res) => {
                   }
                 )
                   .then((res) => {
-                    console.log("exito");
+                    console.log(`producto guardado ${name}`);
                   })
                   .catch((err) => {
                     console.log("error", err);
