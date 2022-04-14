@@ -149,7 +149,7 @@ app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     console.log('Creando browser')
     const cities = ['Bogotá', 'Cali', 'Chía', 'Cajicá', 'Sabaneta', 'Envigado' ,'Medellín']
-    const browser = await chromium.launch({chromiumSandbox: false});
+    const browser = await chromium.launch({chromiumSandbox: false, slowMo:1000});
 
     console.log('Iniciando page')
     
@@ -164,6 +164,7 @@ app.get("/getCornerShop/:id", (req, res) => {
       waitUntil: "load",
       // Remove the timeout
       timeout: 0,
+
     });
     console.log('Navegando a la pagina')
     await page.waitForSelector(
@@ -205,11 +206,14 @@ app.get("/getCornerShop/:id", (req, res) => {
       await page.waitForLoadState("networkidle");
       console.log('Creando citys')
       const citys = page.locator('#city-country', {
-        timeout:60000,
+        timeout:0,
       });
       // handle dropdown menu
       console.log('esperando elegir ciudad')
-      await citys.selectOption(cityPageName);
+      await citys.selectOption(cityPageName,{
+        timeout:0,
+      
+      });
       
 
       console.log('seleccionando opcion')
