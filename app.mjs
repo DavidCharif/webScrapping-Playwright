@@ -343,7 +343,7 @@ app.get("/getCornerShop/:id", (req, res) => {
 //       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
-      console.log('Creando  citys')
+      console.log('Creando citys')
       const citys = page.locator('#city-country', {
         timeout:0,
       });
