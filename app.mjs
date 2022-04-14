@@ -149,16 +149,13 @@ app.get("/getCornerShop/:id", (req, res) => {
   (async () => {
     console.log('Creando browser')
     const cities = ['Bogotá', 'Cali', 'Chía', 'Cajicá', 'Sabaneta', 'Envigado' ,'Medellín']
-    const browser = await firefox.launch();
+    const browser = await chromium.launch({chromiumSandbox: false});
 
     console.log('Iniciando page')
     
     // const context =  await browser.newContext()
 
-    const page = await browser.newPage({
-      slowMo: 800,
-
-    });
+    const page = await browser.newPage();
     console.log('despues page')
     
     //req params
