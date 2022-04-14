@@ -208,7 +208,10 @@ app.get("/getCornerShop/:id", (req, res) => {
         timeout:60000,
       });
       // handle dropdown menu
-      await citys?.selectOption(cityPageName);
+      console.log('esperando elegir ciudad')
+      await citys.selectOption(cityPageName);
+      
+
       console.log('seleccionando opcion')
       await page.waitForSelector('[data-testid="action-button"]',{
         timeout:0,
