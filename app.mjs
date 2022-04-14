@@ -18,118 +18,7 @@ app.use(
   })
 );
 //
-app.get("/extraerLista", (req, res) => {
-  (async () => {
-    const browser = await chromium.launch({ slowMo: 250 });
-    const page = await browser.newPage();
-    await page.goto(
-      `https://merqueo.com/bogota/super-ahorro/frutas-y-verduras`,
-      {
-        waitUntil: "load",
-        // Remove the timeout
-        timeout: 0,
-      }
-    );
-    await page.waitForSelector(".mq-grid-products > article", {
-      timeout: 40000,
-    });
-    await autoScroll(page);
-    const sections = await page.locator(".container > section");
 
-    const countSections = await sections.count();
-    for (let s = 1; s < countSections; s++) {
-      let section = await sections.nth(s);
-      const rows = await section.locator(".mq-grid-products");
-
-      let arrayData = [];
-      // for (let i = 0; i < count; i++) {
-
-      let each1 = rows.locator(".mq-product-card");
-      let counts = await each1.count();
-      let initialData = new Date();
-      arrayData.push(initialData);
-      let name;
-      // each = await each.elementHandle('.mq-img').getAttribute('src')
-      // console.log('each', each)
-
-      for (let i = 0; i < counts; i++) {
-        let each = each1.nth(i);
-        await each.scrollIntoViewIfNeeded({ timeout: 0 });
-        await each.isVisible({ timeout: 0 });
-
-        let img = await each.locator(".mq-img").getAttribute("src");
-
-        name = await each.locator(".mq-product-title").innerText();
-        let shortName =
-          name.split(" ")[0] +
-          " " +
-          name.split(" ")[1] +
-          " " +
-          name.split(" ")[2];
-        let weight = await each.locator(".mq-product-subtitle").innerText();
-
-        let price = await each.locator(".mq-product-price").innerText();
-        let formatedPrice = formatPrice(price)
-
-        await setDoc(doc(db, "merqueo", ciudad, "Precios", shortName), {
-          id: i,
-          img,
-          name,
-          weight,
-          formatedPrice,
-          brand: "merqueo",
-        })
-          .then((resp) => {
-            console.log("Guardado con exito");
-          })
-          .catch((error) => {
-            console.log("error", error);
-          });
-      }
-    }
-    await page.close();
-
-    await browser.close();
-  })();
-
-  console.log("Cargando productos");
-});
-app.get("/lista", (req, res) => {
-  (async () => {
-    const browser = await chromium.launch({ headless: false, slowMo: 250 });
-    const page = await browser.newPage();
-    await page.goto(`https://merqueo.com`, {
-      waitUntil: "load",
-      // Remove the timeout
-      timeout: 0,
-    });
-    await page.click("#mq-country-header > div");
-    await page.waitForSelector("#section-country");
-    await page.click(
-      "#section-country > div:nth-child(2) > div.section-country-item.first.selected"
-    );
-    await page.waitForSelector("#section-country");
-    await page.waitForSelector("#section-country > div.section-country-header");
-    await page.waitForSelector(
-      "#section-country > div.section-country__cities"
-    );
-    const rows = await page.locator(
-      "#section-country > div.section-country__cities > a.section-country__cities__item"
-    );
-    let countRows = await rows.count();
-    let arrayData = [];
-    for (let i = 0; i < countRows; i++) {
-      let each = rows.nth(i);
-      let ciudad = await each.innerText();
-      arrayData.push(ciudad);
-      await setDoc(doc(db, `lista/${ciudad}`), { ciudad });
-      console.log("Guardado con exito");
-    }
-    await page.close();
-    await browser.close();
-  })();
-  console.log("Cargando ciudades");
-});
 app.get("/listaCiudades", (req, res) => {
   (async () => {
     const browser = await firefox.launch({ slowMo: 450 });
@@ -309,43 +198,17 @@ app.get("/getCornerShop/:id", (req, res) => {
       }
     );
     console.log('encontrado 😴')
-    // await page.click('//*[@id="modal-container"]/div[2]/div/div[2]/div/div/form/section[2]/div/div/div/div/div[1]/div/div')
-    // console.log('Haciendo click')
-    // console.log('Esperando selector de ciudad')
-    // await page.waitForSelector('//*[@id="modal-container"]/div[2]/div/div[2]/div/div',{      
-    //   timeout:0,
-    // });
-    console.log('Encontrado 😁')
-    // const firstRows = await page.locator(
-    //   '//*[@id="city-country"]/option'
-    //   ,{
-    //     timeout:0,
-    //   });
+
+
     console.log('mirando las opciones')
     let id = req.params.id
     let cityPageName = cities[id]
-//     let count = await firstRows.count();
-//     console.log("Ciudades", count);
-//     let id = req.params.id;
-//     
-//       await page.goto(`https://web.cornershopapp.com/location-selector`, {
-//         waitUntil: "load",
-//         // Remove the timeout
-//         timeout: 0,
-//       });
-//       await page.waitForSelector("div.location-selector-container");
-//       await page.waitForSelector("select[data-testid='city-select']");
-//       const firstRows = await page.locator(
-//         '[data-testid="city-select"] > option'
-//       );
-// 
-//       let each = firstRows.nth(i);
-//       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
+      await page.waitForLoadState("networkidle");
       console.log('Creando citys')
       const citys = page.locator('#city-country', {
-        timeout:0,
+        timeout:60000,
       });
       // handle dropdown menu
       await citys?.selectOption(cityPageName);
