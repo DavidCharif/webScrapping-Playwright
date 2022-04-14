@@ -3,6 +3,7 @@ import cors from "cors";
 import autoScroll from "./helpers/AutoScroll.mjs";
 // import { chromium } from "playwright";
 import { firefox } from "playwright-firefox";
+import { chromium } from "playwright-chromium";
 import firestore from "./firebase/firebaseConfig.js";
 import { doc, setDoc } from "@firebase/firestore";
 import formatPrice from "./helpers/formatPrice.mjs";
@@ -342,7 +343,8 @@ app.get("/getCornerShop/:id", (req, res) => {
 //       cityPageName = await each.innerText();
       console.log("cityPageName", cityPageName);
       await page.waitForSelector('[data-testid="action-button"]');
-      const citys = await page.locator('//*[@id="city-country"]', {
+      console.log('Creando  citys')
+      const citys = page.locator('#city-country', {
         timeout:0,
       });
       // handle dropdown menu
