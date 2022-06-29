@@ -42,11 +42,14 @@ app.get("/listaCiudades", (req, res) => {
       "#section-country > div.section-country__cities > a.section-country__cities__item"
     );
     console.log("rows count ", await rows.count());
-    let arrayData = [];
+   
     for (let i = 0; i < (await rows.count()); i++) {
       let cityPageName = await rows.nth(i).getAttribute("href");
+      console.log("cityPageName ", cityPageName);
       let indexSign = cityPageName.indexOf("=");
       cityPageName = cityPageName.slice(indexSign + 1);
+      console.log("cityPageName Slice ", cityPageName);
+      
       let city = await rows.nth(i).first("p").innerText();
       console.log("path, city", cityPageName, city);
       if (
@@ -57,15 +60,22 @@ app.get("/listaCiudades", (req, res) => {
         continue;
       }
       const innerPage = await browser.newPage();
+      const formatedCityName = formatCityName(city);
       await innerPage.goto(
-        `https://merqueo.com/${cityPageName}/super-ahorro/frutas-y-verduras`,
+        `https://merqueo.com/${formatedCityName}/super-ahorro/frutas-y-verduras`,
         {
-          waitUntil: "load",
+          waitUntil: "domcontentloaded",
           // Remove the timeout
           timeout: 0,
         }
       );
-      await innerPage.waitForSelector(".container > section");
+     
+      console.log('waitiingg')
+      await innerPage.waitForSelector(".container > section", {
+        timeout: 0,
+
+      });
+      console.log('Dooooneee')
       await autoScroll(innerPage);
       const sections = innerPage.locator(".container > section");
       const countSections = await sections.count();     
@@ -99,7 +109,7 @@ app.get("/listaCiudades", (req, res) => {
             doc(
               db,
               "merqueo",
-              cityPageName,
+              city.toLowerCase(),
               "Historico",
               name,
               "preciosDiarios",
@@ -112,7 +122,7 @@ app.get("/listaCiudades", (req, res) => {
             }
           )
             .then((resp) => {
-              console.log("Guardado el precio actual con exito");
+              console.log(`${name} and ${price} was saved`);
             })
             .catch((error) => {
               console.log("error", error);
