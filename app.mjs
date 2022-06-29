@@ -22,7 +22,6 @@ app.use(
 app.get("/listaCiudades", (req, res) => {
   (async () => {
     const browser = await firefox.launch({ slowMo: 450 });
-
     const page = await browser.newPage();
     await page.goto(`https://merqueo.com`, {
       waitUntil: "load",
@@ -39,7 +38,7 @@ app.get("/listaCiudades", (req, res) => {
     await page.waitForSelector(
       "#section-country > div.section-country__cities"
     );
-    const rows = await page.locator(
+    const rows = page.locator(
       "#section-country > div.section-country__cities > a.section-country__cities__item"
     );
     console.log("rows count ", await rows.count());
@@ -68,7 +67,7 @@ app.get("/listaCiudades", (req, res) => {
       );
       await innerPage.waitForSelector(".container > section");
       await autoScroll(innerPage);
-      const sections = await innerPage.locator(".container > section");
+      const sections = innerPage.locator(".container > section");
       const countSections = await sections.count();     
       console.log('countSections', countSections) 
       for (let s = 1; s < countSections; s++) {
